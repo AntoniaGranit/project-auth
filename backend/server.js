@@ -31,8 +31,6 @@ const userSchema = new Schema({
   }
 });
 
-userSchema.index({ username: 1 }, { unique: true })
-
 const User = mongoose.model('User', userSchema);
 
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
