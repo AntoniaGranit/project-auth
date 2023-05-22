@@ -66,14 +66,10 @@ app.post("/register", async (req, res) => {
   } catch (error) {
     console.log("Error:", error);
     if (error.code === 11000) {
-      // Duplicate key error
-      const key = Object.keys(error.keyValue)[0];
-      const value = error.keyValue[key];
-      const message = `A user with ${key}: ${value} already exists.`;
       res.status(400).json({
         success: false,
         response: error,
-        message
+        message: error.message,
       });
     } else {
       // Other error
