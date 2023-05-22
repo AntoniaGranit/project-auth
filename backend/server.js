@@ -14,7 +14,6 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
   username: {
     type: String,
-    required: true,
     unique: true
   },
   email: {
@@ -50,32 +49,27 @@ app.get("/", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
-  const salt = bcrypt.genSaltSync();
+  const salt = bcrypt.genSaltSync(10);
   try {
-    const newUser = await new User({username, email, password: bcrypt.hashSync(password, salt)}).save();
+    const { username, email, password } = req.body;
+    const newUser = new User({username, email, password: bcrypt.hashSync(password, salt)});
+    newUser.save();
     res.status(201).json({
       success: true,
       response: {
+        id: newUser._id,
         username: newUser.username,
         email: newUser.email,
         accessToken: newUser.accessToken,
       },
       message: "User successfully created!"
     })
-  } catch (error) {
-    console.log("Error:", error);
-    if (error.code === 11000) {
+  } catch (err) {
+    console.log("Error:", err); {
+      // Other error
       res.status(400).json({
         success: false,
-        response: error,
-        message: error.message,
-      });
-    } else {
-      // Other error
-      res.status(500).json({
-        success: false,
-        response: error,
+        response: err.errors,
         message: "Could not create user"
       });
     }
