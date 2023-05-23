@@ -113,15 +113,26 @@ app.post("/login", async (req, res) => {
 
 // authentication:
 const authenticateUser = async (req, res, next) => {
-  const user = await User.findOne({accessToken:req.header('Authorization')});
+  try {
+  const user = await User.findOne({accessToken: req.header('Authorization')});
   if(user) {
     req.user = user;
     next();
   } else {
-    res.status(401).json({loggedOut: true});
+    res.status(401).json({
+      success: false,
+      response: "Please log in"
+    });
   }
+} catch (e) {
+  res.status(500).json({
+    success: false,
+    response: e
+  })
+}
 }
 
+// behind login wall:
 app.get('/secrets', authenticateUser);
 app.get('/secrets', (req, res) => {
   res.json({secret: 'This is a super secret message only for registered users!'})
