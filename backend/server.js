@@ -32,6 +32,15 @@ const userSchema = new Schema({
 
 const User = mongoose.model('User', userSchema);
 
+const authenticateUser = async (req, res, next) => {
+  const user = await User.findOne({accessToken:req.header('Authorization')});
+  if(user) {
+    req.user = user;
+    next();
+  } else {
+    res.status(401).json({loggedOut: true});
+  }
+}
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
 // when starting the server. Example command to overwrite PORT env variable value:
 // PORT=9000 npm start
@@ -74,6 +83,11 @@ app.post("/register", async (req, res) => {
       });
     }
   }
+});
+
+app.get('/secrets', authenticateUser);
+app.get('/secrets', (req, res) => {
+  res.json({secret: 'This is a super secret message only for registered users!'})
 });
 
 // Start the server
